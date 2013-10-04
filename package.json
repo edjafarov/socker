@@ -1,0 +1,26 @@
+{
+  "name": "socker",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./node_modules/.bin/mocha tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/edjafarov/socker.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/edjafarov/socker/issues"
+  },
+  "dependencies": {
+    "engine.io": "~0.7.9",
+    "engine.io-client": "~0.7.9",
+    "chai": "~1.8.0",
+    "express": "~3.4.0",
+    "mocha": "~1.13.0",
+    "async": "~0.2.9"
+  }
+}
