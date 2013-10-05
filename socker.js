@@ -2,7 +2,7 @@
 var async = require('async');
 
 module.exports.route = function (socket, data, callback){
-  if(soket.routingDone) return callback();//routing was handled before
+  if(socket.routingDone || !data.path) return callback();//routing was handled before
   socket.routingDone = true;
   var path = data.path;
   delete data.path;
@@ -12,6 +12,7 @@ module.exports.route = function (socket, data, callback){
     if(!m) continue;
     for (var j = 1, len = m.length; j < len; ++j) {
       var key = routes[i].args[j - 1];
+      var val = m[j];
       if(key){
         params[key.name] = val;
       }else{
@@ -48,7 +49,7 @@ var routes = [];
 module.exports = function(server){
   server.sock = {
     use : function(middleware){
-      if(argsNumber(middleware > 3)){ // err at the beginning
+      if(argsNumber(middleware) > 3){ // err at the beginning
         errMiddlewares.push(middleware);
       }else{
         //preLast, instead of last
@@ -58,14 +59,15 @@ module.exports = function(server){
       }
     },
     when : function(){
-      var path = arguments.shift();
+      var argum = Array.prototype.slice.call(arguments);
+      var path = argum.shift();
       var args = [];
       var matcher = pathRegexp(path, args);
       var route = {
         path : path,
         matcher : matcher,
         args : args,
-        middlewares : arguments
+        middlewares : argum
       }
       routes.push(route);
     }
@@ -83,7 +85,8 @@ module.exports.attach = function (socket){
     try{
       data = JSON.parse(data);
     }catch(e){
-      //handle error
+      console.log("ERROR!!!!! -" + e);
+      //TODO:handle error
     }
     //throw error if there is no __cbid?
 
@@ -92,7 +95,7 @@ module.exports.attach = function (socket){
     };
     sock.__proto__ = socket;
     delete data.__cbid;
-
+    
     //we need to check routing mddlw here, add it to the end if not exists
     async.applyEachSeries(socketMiddlewares, sock, data, flowComplete);
     
@@ -107,6 +110,7 @@ module.exports.attach = function (socket){
 }
 
 
+var argRe = /^\s*function\s+(?:\w*\s*)?\((.*?)\)/;
 
 
 function pathRegexp(path, keys, sensitive, strict) {
@@ -134,11 +138,12 @@ function pathRegexp(path, keys, sensitive, strict) {
 
 
 
-var argRe = /^\s*function\s+(?:\w*\s*)?\((.*?)\)/;
 
 function argsNumber(func){
-  var match = func.toString().match(argRE);
-  if(match[1]){
+  var match = func.toString().match(argRe);
+  if(match && match[1]){
     return match[1].split(',').length;
+  }else{
+    return false;
   }
 }
