@@ -1,10 +1,11 @@
 var expect = require('chai').expect;
 var engine = require('engine.io');
 var sinon = require('sinon');
-var PORT = 3656;
+var sockerClient = require('../socker.client.js');
+var PORT = 3657;
 var client= require('engine.io-client');
 
-describe('initialize express server, add engine.io, and cover by socker',function(){
+describe('SOCKER-CLIENT: initialize express server, add engine.io, and cover by socker',function(){
   var socker;
   var app ;
   before(function(done){
@@ -18,13 +19,8 @@ describe('initialize express server, add engine.io, and cover by socker',functio
     delete require.cache[require('path').normalize(__dirname + '/../socker.js')];
     done();
   })
-  it('app should have sock.use and sock.when functions',function(){
-    expect(app.sock).to.be.an('object');
-    expect(app.sock.use).to.be.a('function');
-    expect(app.sock.when).to.be.a('function');
-  });
 
-  describe('set up configuration for socket connection', function(){
+  describe('attach socker to a socket on connection and connect from client, cover client by sockerClient', function(){
     var soketInst;
     var c; //connection
     before(function(done){
@@ -34,30 +30,38 @@ describe('initialize express server, add engine.io, and cover by socker',functio
         done();
       });
       c = client('ws://localhost:' + PORT);
+      sockerClient(c);
     })
-    
-    it('socket should have json method', function(){
-      expect(socketInst).to.have.property('json').to.be.a('function');;
-    })
+    it('client should obtain serve method', function(){
+      expect(c).to.have.property('serve').to.be.a('function');
+    });
+    //check the event was added(for unit)
 
     describe('set middleware with sock.use and send a dummy message', function(){
       var middleware;
+      var clientcb;
       before(function(done){
-        middleware = sinon.stub();
-        middleware.callsArg(2);
+        clientcb = sinon.spy();
+        middleware = function(socket, data, next){
+          socket.json({message: 're:' + data.message});
+        };
         app.sock.use(middleware);
-        c.send('{"__cbid":1,"message":"dummy"}', done);
+        c.serve({message:'dummy1'}, function(err, data){
+          clientcb.apply(this, arguments);
+          done();
+        });
       })
       
       it('middleware should be called', function(){
-        expect(middleware.called).to.be.ok;
+        expect(clientcb.called).to.be.ok;
       });
-      it('middleware should be called with second argument {message:"dummy"}', function(){
-        expect(middleware.firstCall.args[1]).to.deep.equal({message:'dummy'});
+      it('middleware should be called with second argument {message:"dummy1"}', function(){
+        expect(clientcb.firstCall.args[1]).to.deep.equal({message:'re:dummy1'});
       });
+      //TODO: hack and send without __cbid, wrong __cbid, expired __cbid
     })
     
-    describe('set route and middlewares with sock.when and send a dummy1 message', function(){
+    xdescribe('set route and middlewares with sock.when and send a dummy1 message', function(){
       var routingMiddleware1, routingMiddleware2, routingMiddleware3, routingMiddleware4;
       before(function(done){
         routingMiddleware1 = sinon.stub();

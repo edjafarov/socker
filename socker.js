@@ -45,6 +45,7 @@ module.exports.route.routingMdlw = true;
 var socketMiddlewares = [module.exports.route];
 var errMiddlewares = [];
 var routes = [];
+var timeout = 2000;
 
 module.exports = function(server){
   server.sock = {
@@ -70,6 +71,9 @@ module.exports = function(server){
         middlewares : argum
       }
       routes.push(route);
+    },
+    timeout: function(){
+      timeout = 2000;
     }
   }
 }
@@ -77,6 +81,7 @@ module.exports = function(server){
 module.exports.attach = function (socket){
   socket.json = function(data){
     data.__cbid = this.__cbid;
+    delete this.callTimeout;
     socket.send(JSON.stringify(data));
     delete this.__cbid;
   };
@@ -86,12 +91,18 @@ module.exports.attach = function (socket){
       data = JSON.parse(data);
     }catch(e){
       console.log("ERROR!!!!! -" + e);
-      //TODO:handle error
+      return socket.json({type:"ERROR", code: 400, details:"the call is not an object"})
+      
     }
     //throw error if there is no __cbid?
-
+    if(!data.__cbid) return socket.json({type:"ERROR", code: 412, details:"the call does not have __cbid idetificator"})
+    
     var sock = {
-      __cbid: data.__cbid
+      __cbid: data.__cbid,
+      callTimeout: setTimeout(function(){
+        sock.json({type:"ERROR", code: 408, details:"the call " + data.__cbid + "was timed out"})
+        delete sock.__cbid;
+      }, timeout)
     };
     sock.__proto__ = socket;
     delete data.__cbid;
