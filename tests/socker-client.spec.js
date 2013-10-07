@@ -36,7 +36,52 @@ describe('SOCKER-CLIENT: initialize express server, add engine.io, and cover by 
       expect(c).to.have.property('serve').to.be.a('function');
     });
     //check the event was added(for unit)
+    
+    describe('set middleware with sock.when and send a dummy message with socker client, receive response', function(){
+      var middleware;
+      var clientcb1;
+      var clientcb2;
+      var errorMiddleware;
+      
+      before(function(done){
+        clientcb1 = sinon.spy();
+        clientcb2 = sinon.spy();
 
+        middleware = function(socket, data, next){
+          socket.json({message: 're:' + data.message, key: socket.params['id']});
+        };
+        errorMiddleware = function(socket, data, next){
+          next({code: 123, message:"fail"});
+        }
+        app.sock.when('/error', errorMiddleware);
+        app.sock.when('/api/:id/dummy2', middleware);
+        
+        c.serve('/api/2/dummy2', {message:'dummy2'}, function(err, data){
+          clientcb1.apply(this, arguments);
+          c.serve('/error', {message:'dummy2'}, gotError);
+        });
+
+        function gotError(){
+          clientcb2.apply(this, arguments);
+          done();
+        }
+      })
+      
+      it('middleware should be called', function(){
+        expect(clientcb1.called).to.be.ok;
+      });
+      it('middleware should be called with second argument {message:"dummy2"}', function(){
+        expect(clientcb1.firstCall.args[1]).to.deep.equal({message:'re:dummy2', key: "2"});
+      });
+      it('Errormiddleware should be responded', function(){
+        expect(clientcb2.called).to.be.ok;
+      });
+      it('error should be returned with a bunch of metadata', function(){
+        expect(clientcb2.firstCall.args[0]).to.have.property("type","ERROR");
+        expect(clientcb2.firstCall.args[0]).to.have.property("err").to.have.property('code', 123);
+      });
+    })
+ 
     describe('set middleware with sock.use and send a dummy message', function(){
       var middleware;
       var clientcb;
@@ -61,36 +106,6 @@ describe('SOCKER-CLIENT: initialize express server, add engine.io, and cover by 
       //TODO: hack and send without __cbid, wrong __cbid, expired __cbid
     })
     
-    xdescribe('set route and middlewares with sock.when and send a dummy1 message', function(){
-      var routingMiddleware1, routingMiddleware2, routingMiddleware3, routingMiddleware4;
-      before(function(done){
-        routingMiddleware1 = sinon.stub();
-        routingMiddleware2 = sinon.stub();
-        routingMiddleware3 = sinon.stub();
-        routingMiddleware4 = sinon.stub();
-        routingMiddleware1.callsArg(2);
-        
-        app.sock.when("READ - /api/dummy/:id", routingMiddleware1, routingMiddleware2, routingMiddleware3);
-        app.sock.when("READ - /api/:id/dummy", routingMiddleware4);
-        c.send('{"__cbid":1,"message":"dummy1", "path":"READ - /api/dummy/1234"}', done);
-      })
-      
-      it('- routingMiddleware1 should be called', function(){
-        expect(routingMiddleware1.called).to.be.ok;
-      });
-      it('- routingMiddleware1 should be called with second argument {message:"dummy1"}', function(){
-        expect(routingMiddleware1.firstCall.args[1]).to.deep.equal({message:'dummy1'});
-      });
-      it('- routingMiddleware2 should be called with second argument {message:"dummy1"}', function(){
-        expect(routingMiddleware2.firstCall.args[1]).to.deep.equal({message:'dummy1'});
-      });
-      it('- routingMiddleware3 should not be called', function(){
-        expect(routingMiddleware3.called).to.be.not.ok;
-      });
-      it('- routingMiddleware4 should not be called', function(){
-        expect(routingMiddleware4.called).to.be.not.ok;
-      });
-    
-    })
+
   })
 })

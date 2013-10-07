@@ -88,5 +88,9 @@ describe('initialize express server, add engine.io, and cover by socker',functio
       });
     
     })
+
+    // fail if no __cbid
+    // fail if not an object
+    // fail on timeout
   })
 })

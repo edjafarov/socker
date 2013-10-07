@@ -42,8 +42,18 @@ module.exports.route = function (socket, data, callback){
   // socket.join('/api/user/:id', messageRoomId, function(){})
 }
 module.exports.route.routingMdlw = true;
+
+function errorHandler(err, socket, data, next){
+  var error = {
+    type: "ERROR",
+    err : err,
+    data : data
+  };
+  socket.json(error);
+}
+
 var socketMiddlewares = [module.exports.route];
-var errMiddlewares = [];
+var errMiddlewares = [errorHandler];
 var routes = [];
 var timeout = 2000;
 
@@ -51,12 +61,12 @@ module.exports = function(server){
   server.sock = {
     use : function(middleware){
       if(argsNumber(middleware) > 3){ // err at the beginning
-        errMiddlewares.push(middleware);
+        errMiddlewares.splice(errMiddlewares.length - 1, 0, middleware);
       }else{
         //preLast, instead of last
         //last will be routing if wasnt called befoew
         //socketMiddlewares.push(middleware);
-        socketMiddlewares.splice(socketMiddlewares - 1, 0, middleware);
+        socketMiddlewares.splice(socketMiddlewares.length - 1, 0, middleware);
       }
     },
     when : function(){
