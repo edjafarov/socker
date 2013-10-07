@@ -1,7 +1,7 @@
 {
   "name": "socker",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.1.0",
+  "description": "REST on engine.io",
   "main": "index.js",
   "scripts": {
     "test": "node ./node_modules/.bin/mocha tests"
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/edjafarov/socker.git"
   },
-  "author": "",
+  "author": "Eldar Djafarov <djkojb@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/edjafarov/socker/issues"
