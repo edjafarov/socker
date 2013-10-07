@@ -1,7 +1,7 @@
 {
   "name":"socker-client",
   "repo":"edjafarov/socker",
-  "description":"REST on engine.io",
+  "description":"express like API CRUD on engine.io",
   "version":"0.1.0",
   "scripts": ["socker.client.js"],
   "main": "socker.client.js",

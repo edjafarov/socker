@@ -1,7 +1,7 @@
 {
   "name": "socker",
   "version": "0.1.0",
-  "description": "REST on engine.io",
+  "description": "express like API CRUD on engine.io",
   "main": "index.js",
   "scripts": {
     "test": "node ./node_modules/.bin/mocha tests"
@@ -18,10 +18,12 @@
   "dependencies": {
     "engine.io": "~0.7.9",
     "engine.io-client": "~0.7.9",
+    "async": "~0.2.9"
+   },
+  "devDependencies":{
     "chai": "~1.8.0",
     "express": "~3.4.0",
     "mocha": "~1.13.0",
-    "async": "~0.2.9",
     "sinon": "~1.7.3"
   }
 }
