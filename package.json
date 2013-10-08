@@ -1,8 +1,8 @@
 {
   "name": "socker",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "express like API CRUD on engine.io",
-  "main": "index.js",
+  "main": "socker.js",
   "scripts": {
     "test": "node ./node_modules/.bin/mocha tests"
   },

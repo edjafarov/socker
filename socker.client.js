@@ -25,7 +25,7 @@ module.exports = function(socket){
     if(typeOfArgument(data) === "[object Function]"){
       callback = data;
       if(typeOfArgument(path) === "[object String]"){
-        data = undefined;
+        data = {};
       }
     }
     if(typeOfArgument(path) === "[object Object]") {
