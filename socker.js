@@ -1,5 +1,6 @@
 //CRUD over engine io
 var async = require('async');
+module.exports.client = require('./socker.client.js');
 
 module.exports.route = function (socket, data, callback){
   if(socket.routingDone || !data.path) return callback();//routing was handled before
