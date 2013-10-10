@@ -33,7 +33,7 @@ frontend:
 var socket = require('engine.io')('ws://localhost');
 var sockerClient = require('socker-client');
 sockerClient(socket);
-serve('CREATE /api/rooms', {name:"testName"}, function(err, data){
+socket.serve('CREATE /api/rooms', {name:"testName"}, function(err, data){
   // err contains error object if it was thrown
   // data is a response data
 })
