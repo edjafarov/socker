@@ -13,7 +13,7 @@ express like API for websockets over engine.io
 ## how
 
 #### setup
-
+backend:
 ```javascript
 var engine = require('engine.io');
 var socker = require('socker');
@@ -28,7 +28,16 @@ server.on('connection', function(socket){
 });
 
 ```
-
+frontend:
+```javascript
+var socket = require('engine.io')('ws://localhost');
+var sockerClient = require('socker-client');
+sockerClient(socket);
+serve('CREATE /api/rooms', {name:"testName"}, function(err, data){
+  // err contains error object if it was thrown
+  // data is a response data
+})
+```
 #### add middlewares
 ```javascript
 server.sock.use(logger);
