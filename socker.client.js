@@ -1,7 +1,9 @@
+;(function(){
+  
 var cbStack = {};
 
 //socker-client
-module.exports = function(socket){
+var sockerClient = function(socket){
   socket.addEventListener('message', function(data){
     try{
       data = JSON.parse(data);
@@ -48,3 +50,14 @@ function packetBuild(path, data){
 function typeOfArgument(arg){
   return Object.prototype.toString.call(arg);
 }
+
+
+if (typeof exports == "object") {
+  module.exports = sockerClient;
+} else if (typeof define == "function" && define.amd) {
+  define(function(){ return sockerClient; });
+} else {
+  this["sockerClient"] = sockerClient;
+}
+
+})();

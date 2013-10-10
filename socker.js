@@ -1,5 +1,39 @@
 //CRUD over engine io
 var async = require('async');
+
+module.exports = function(server){
+  server.sock = {
+    use : function(middleware){
+      if(argsNumber(middleware) > 3){ // err at the beginning
+        errMiddlewares.splice(errMiddlewares.length - 1, 0, middleware);
+      }else{
+        //preLast, instead of last
+        //last will be routing if wasnt called befoew
+        //socketMiddlewares.push(middleware);
+        socketMiddlewares.splice(socketMiddlewares.length - 1, 0, middleware);
+      }
+    },
+    when : function(){
+      var argum = Array.prototype.slice.call(arguments);
+      var path = argum.shift();
+      var args = [];
+      var matcher = pathRegexp(path, args);
+      var route = {
+        path : path,
+        matcher : matcher,
+        args : args,
+        middlewares : argum
+      }
+      routes.push(route);
+    },
+    timeout: function(){
+      timeout = 2000;
+    }
+  }
+}
+
+
+
 module.exports.client = require('./socker.client.js');
 
 module.exports.route = function (socket, data, callback){
@@ -57,37 +91,6 @@ var socketMiddlewares = [module.exports.route];
 var errMiddlewares = [errorHandler];
 var routes = [];
 var timeout = 2000;
-
-module.exports = function(server){
-  server.sock = {
-    use : function(middleware){
-      if(argsNumber(middleware) > 3){ // err at the beginning
-        errMiddlewares.splice(errMiddlewares.length - 1, 0, middleware);
-      }else{
-        //preLast, instead of last
-        //last will be routing if wasnt called befoew
-        //socketMiddlewares.push(middleware);
-        socketMiddlewares.splice(socketMiddlewares.length - 1, 0, middleware);
-      }
-    },
-    when : function(){
-      var argum = Array.prototype.slice.call(arguments);
-      var path = argum.shift();
-      var args = [];
-      var matcher = pathRegexp(path, args);
-      var route = {
-        path : path,
-        matcher : matcher,
-        args : args,
-        middlewares : argum
-      }
-      routes.push(route);
-    },
-    timeout: function(){
-      timeout = 2000;
-    }
-  }
-}
 
 module.exports.attach = function (socket){
   socket.json = function(data){

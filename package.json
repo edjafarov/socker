@@ -1,6 +1,6 @@
 {
   "name": "socker",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "express like API CRUD on engine.io",
   "main": "socker.js",
   "scripts": {
