@@ -95,6 +95,7 @@ var timeout = 2000;
 module.exports.attach = function (socket){
   socket.json = function(data){
     data.__cbid = this.__cbid;
+    clearTimeout(this.callTimeout);
     delete this.callTimeout;
     socket.send(JSON.stringify(data));
     delete this.__cbid;
@@ -109,7 +110,7 @@ module.exports.attach = function (socket){
       
     }
     //throw error if there is no __cbid?
-    if(!data.__cbid) return socket.json({type:"ERROR", code: 412, details:"the call does not have __cbid idetificator"})
+    if(!data.__cbid) return socket.json({type:"ERROR", code: 413, details:"the call does not have __cbid idetificator", data:data})
     
     var sock = {
       __cbid: data.__cbid,
