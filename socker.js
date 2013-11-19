@@ -1,6 +1,8 @@
 //CRUD over engine io
 var async = require('async');
 
+
+
 module.exports = function(server){
   server.sock = {
     use : function(middleware){
@@ -24,7 +26,33 @@ module.exports = function(server){
         args : args,
         middlewares : argum
       }
+      if(defaultMiddleware){
+        var haveDefault = false;
+        route.middlewares.forEach(function(middle){
+          if(middle.__isdefault) haveDefault = true;
+        });
+        if(!haveDefault){
+          route.middlewares.unshift(defaultMiddleware);
+        }
+      }
       routes.push(route);
+    },
+    replaceWith: function(middleware){
+      middleware.__isdefault = true;
+      return middleware;
+    },
+    setDefault: function(middleware){
+      defaultMiddleware = middleware;
+      defaultMiddleware.__isdefault = true;
+      routes.forEach(function(route){
+        var haveDefault = false;
+        route.middlewares.forEach(function(middle){
+          if(middle.__isdefault) haveDefault = true;
+        });
+        if(!haveDefault){
+          route.middlewares.unshift(defaultMiddleware);
+        }
+      });
     },
     timeout: function(){
       timeout = 2000;
@@ -91,6 +119,7 @@ var socketMiddlewares = [module.exports.route];
 var errMiddlewares = [errorHandler];
 var routes = [];
 var timeout = 2000;
+var defaultMiddleware;
 
 module.exports.attach = function (socket){
   socket.json = function(data){

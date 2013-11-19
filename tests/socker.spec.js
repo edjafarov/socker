@@ -89,6 +89,39 @@ describe('initialize express server, add engine.io, and cover by socker',functio
     
     })
 
+    describe('set route and middlewares with sock.when and security, send a dummy1 message', function(){
+      var routingMiddleware1, routingMiddleware2, routingMiddleware3, routingMiddleware4;
+      before(function(done){
+        routingMiddleware1 = sinon.stub();
+        routingMiddleware2 = sinon.stub();
+        securityMiddleware = sinon.stub();
+        freeMiddleware = sinon.stub();
+        freeMiddleware.callsArg(2);
+        app.sock.setDefault(securityMiddleware);
+        app.sock.when("READ - /api/security", routingMiddleware1);
+        app.sock.when("READ - /api/free", app.sock.replaceWith(freeMiddleware), routingMiddleware2);
+        c.send('{"__cbid":1,"message":"dummy1", "path":"READ - /api/security"}', function(){
+          c.send('{"__cbid":1,"message":"dummy1", "path":"READ - /api/free"}', done);
+        });
+      })
+      
+      it('- routingMiddleware1 should be called', function(){
+        expect(routingMiddleware1.called).to.not.be.ok;
+      });
+      it('- routingMiddleware2 should be called with second argument {message:"dummy1"}', function(){
+        expect(routingMiddleware2.firstCall.args[1]).to.deep.equal({message:'dummy1'});
+      });
+
+      describe('if default middleware allows you to pass', function(){
+        before(function(done){
+          securityMiddleware.callsArg(2);
+          c.send('{"__cbid":1,"message":"dummy1", "path":"READ - /api/security"}', done);
+        })
+        it('- routingMiddleware1 should be called with second argument {message:"dummy1"}', function(){
+          expect(routingMiddleware2.firstCall.args[1]).to.deep.equal({message:'dummy1'});
+        });
+      })
+    })
     // fail if no __cbid
     // fail if not an object
     // fail on timeout
