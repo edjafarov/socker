@@ -123,10 +123,14 @@ var defaultMiddleware;
 
 module.exports.attach = function (socket){
   socket.json = function(data){
-    data.__cbid = this.__cbid;
+    var response = {};
+    response.__raw = data;
+    response.type = data.type;
+    delete data.type;
+    response.__cbid = this.__cbid;
     clearTimeout(this.callTimeout);
     delete this.callTimeout;
-    socket.send(JSON.stringify(data));
+    socket.send(JSON.stringify(response));
     delete this.__cbid;
   };
   

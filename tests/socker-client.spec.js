@@ -77,7 +77,6 @@ describe('SOCKER-CLIENT: initialize express server, add engine.io, and cover by 
         expect(clientcb2.called).to.be.ok;
       });
       it('error should be returned with a bunch of metadata', function(){
-        expect(clientcb2.firstCall.args[0]).to.have.property("type","ERROR");
         expect(clientcb2.firstCall.args[0]).to.have.property("err").to.have.property('code', 123);
       });
     })

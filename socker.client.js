@@ -15,13 +15,12 @@ var sockerClient = function(socket){
       var callback = cbStack[data.__cbid];
       if(!callback) throw new Error("cbid " + data.__cbid + "is not available");
       if(data.type === "ERROR"){
-        callback.call(this, data);
+        callback.call(this, data.__raw);
       } else {
-        delete data.type;
-        delete data.__cbid;
-        callback.call(this, null, data);
+        callback.call(this, null, data.__raw);
       }
     }
+
   });
   socket.serve = function(path, data, callback){
     if(typeOfArgument(data) === "[object Function]"){
