@@ -17,7 +17,7 @@ var sockerClient = function(socket){
       if(data.type === "ERROR"){
         callback.call(this, data.__raw);
       } else {
-        callback.call(this, null, data.__raw);
+        callback.call(this, null, data.__raw, data.type);
       }
     }
 

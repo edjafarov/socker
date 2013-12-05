@@ -125,8 +125,10 @@ module.exports.attach = function (socket){
   socket.json = function(data){
     var response = {};
     response.__raw = data;
-    response.type = data.type;
-    delete data.type;
+    if(data) {
+      response.type = data.type;
+      delete data.type;
+    }
     response.__cbid = this.__cbid;
     clearTimeout(this.callTimeout);
     delete this.callTimeout;
