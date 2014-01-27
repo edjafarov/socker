@@ -55,7 +55,7 @@ With routings you can create meaningful websocket based API
 server.sock.when('CREATE /api/rooms', checkRoom, createRoom);
 server.sock.when('READ /api/room/:id', getRoom);
 function getRoom(socket, data, next){
-  // sicket.params['id'] contains id from the route
+  // socket.params['id'] contains id from the route
   // data is a data sent
   socket.json({room:"name", id: 100});
 }
